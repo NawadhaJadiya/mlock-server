@@ -27,11 +27,17 @@ app.use(express.json());
 // app.use(helmet());
 
 
-// Hello windows 11
-app.use(cors({
-    origin:['http://localhost:7000', 'http://192.168.10.109:7000', 'http://49.43.5.123:7000'],
-    credentials: true
-}))
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? [process.env.CORS ?? '*']  // Use your deployed frontend URL in CORS env var
+    : ['http://localhost:3000'];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 // server instance
 const server = http.createServer(app);
