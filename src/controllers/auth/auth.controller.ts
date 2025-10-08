@@ -12,8 +12,8 @@ import admin from '../../config/firebase.js';
 import { InternalException } from '../../errors/internal-exception.js';
 import { profile } from 'console';
 
-export const signInWithGoogle = async (req: Request, res: Response) => {
-    const { name, profilePicture, idToken, fcmToken } = req.body;
+export const signInWithPhoneNumber = async (req: Request, res: Response) => {
+    const { name, email, profilePicture, idToken, fcmToken } = req.body;
     console.log(idToken);
 
     console.log('got the signin request');
@@ -27,13 +27,13 @@ export const signInWithGoogle = async (req: Request, res: Response) => {
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-        const verifiedEmail = decodedToken.email;
+        const verifiedPhone = decodedToken.phone_number;
 
-        if (!verifiedEmail) {
+        if (!verifiedPhone) {
             throw new UnauthoirzedException('Invalid Token or expired', ErrorCode.SECRET_KEY_NOT_FOUND);
         }
-
-        let user = await User.findOne({ email: verifiedEmail });
+        console.log('verified phone number: ', verifiedPhone);
+        let user = await User.findOne({ phone: verifiedPhone });
 
         if (user) {
             console.log('user is there');
@@ -56,6 +56,7 @@ export const signInWithGoogle = async (req: Request, res: Response) => {
                         user: {
                             name: user.name,
                             email: user.email,
+                            phone : user.phone,
                             profilePicture: user.profilePicture,
                             id: user._id
                         },
@@ -69,15 +70,16 @@ export const signInWithGoogle = async (req: Request, res: Response) => {
             );
         }
 
-        if (!name || !profilePicture) {
+        if (!name) {
             throw new BadRequestException('Missing required fields for registeration: name, profilePicture', ErrorCode.FIELDS_NOT_FOUND);
         }
 
         user = new User({
-            email: verifiedEmail,
+            phone : verifiedPhone,
+            email: email,
             name: name || '',
             profilePicture: profilePicture || 'profilePicture',
-            fcmToken:fcmToken || ''
+            fcmToken : fcmToken || ''
         });
 
         await user.save();
@@ -91,6 +93,7 @@ export const signInWithGoogle = async (req: Request, res: Response) => {
                 {
                     user: {
                         name: user.name,
+                        phone : user.phone,
                         id: user._id,
                         profilePicture: user.profilePicture,
                         email: user.email
@@ -147,7 +150,7 @@ export const refresthToken = async (req: Request, res: Response) => {
 export const getUser = async(req:Request, res:Response)=>{
 
     try {
-        const user = await User.findById(req.user.id).select('name email currentLocker profilePicture location')
+        const user = await User.findById(req.user.id).select('name email phone currentLocker profilePicture location')
 
         console.log('user --- getuser: ',user);
         

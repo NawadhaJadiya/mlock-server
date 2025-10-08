@@ -8,6 +8,7 @@ import { ErrorCode } from '../errors/root.js';
 interface User extends Document {
     name: string;
     email: string;
+    phone : string;
     fcmToken:string;
     currentLocker?: Types.ObjectId | null;
     profilePicture: string;
@@ -33,8 +34,14 @@ const userSchema = new Schema<User>(
             required: [true, 'Email is required'],
             unique: true
         },
+        phone : {
+            type: String,
+            required: [true, 'Phone number is required'],
+            unique: true
+        },
         profilePicture: {
-            type: String
+            type: String,
+            required : false,
         },
         currentLocker: {
             type: Schema.Types.ObjectId,
@@ -79,6 +86,7 @@ userSchema.methods.createAccessToken = function () {
             id: this._id,
             fullName
             : this.name,
+            phone : this.phone,
             email: this.email
         },
         ACCESS_TOKEN_SECRET,
@@ -97,7 +105,8 @@ userSchema.methods.createRefreshToken = function () {
     return jwt.sign(
         {
             id: this._id,
-            email: this.email
+            email: this.email,
+            phone : this.phone,
         },
 
         REFRESH_TOKEN_SECRET,

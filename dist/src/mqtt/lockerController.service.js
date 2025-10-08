@@ -6,7 +6,15 @@ export class LockerControllerService {
     static determineRelayTopic(lockerNumber) {
         const lockerNum = typeof lockerNumber === 'string' ? parseInt(lockerNumber) : lockerNumber;
         // return lockerNum % 2 === 0? "esp8266/relay1" : "esp8266/relay2"
-        return lockerNum === 1 ? 'esp8266/relay1' : 'esp8266/relay2';
+        switch (lockerNum) {
+            case 1:
+                return 'esp8266/relay1';
+            case 2:
+                return 'esp8266/relay2';
+            default:
+                return 'invalid locker number testing';
+        }
+        // return lockerNum === 1 ? 'esp8266/relay1' : 'esp8266/relay2'
     }
     static async openLocker(lockerNumber) {
         try {

@@ -14,8 +14,14 @@ const userSchema = new Schema({
         required: [true, 'Email is required'],
         unique: true
     },
+    phone: {
+        type: String,
+        required: [true, 'Phone number is required'],
+        unique: true
+    },
     profilePicture: {
-        type: String
+        type: String,
+        required: false,
     },
     currentLocker: {
         type: Schema.Types.ObjectId,
@@ -53,6 +59,7 @@ userSchema.methods.createAccessToken = function () {
     return jwt.sign({
         id: this._id,
         fullName: this.name,
+        phone: this.phone,
         email: this.email
     }, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
 };
@@ -65,7 +72,8 @@ userSchema.methods.createRefreshToken = function () {
     // Sign and return a JWT refresh token with user data and an expiry time
     return jwt.sign({
         id: this._id,
-        email: this.email
+        email: this.email,
+        phone: this.phone,
     }, REFRESH_TOKEN_SECRET, {
         expiresIn: REFRESH_TOKEN_EXPIRY
     });
