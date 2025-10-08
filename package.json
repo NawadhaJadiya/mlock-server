@@ -8,7 +8,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "nodemon",
         "dev1": "tsx watch src",
-        "build": "tsc",
+        "build": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc",
         "start": " npm run build && node dist/src/app.js",
         "start:tsx": "tsx watch src/app.ts"
     },
