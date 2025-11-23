@@ -20,16 +20,17 @@ import { RelayMQTTClient } from './mqtt/mqttClients.js';
 
 dotenv.config();
 
-// Initialize express app
+
 const app: Express = express();
-// app.enable('trust proxy');
 app.use(express.json());
-// app.use(helmet());
+
+console.log('server live');
+
 
 
 const allowedOrigins =
   process.env.NODE_ENV === 'production'
-    ? [process.env.CORS ?? '*']  // Use your deployed frontend URL in CORS env var
+    ? [process.env.CORS ?? '*']  
     : ['http://localhost:3000'];
 
 app.use(
@@ -39,7 +40,7 @@ app.use(
   })
 );
 
-// server instance
+
 const server = http.createServer(app);
 
 // io instance (WebSocket)

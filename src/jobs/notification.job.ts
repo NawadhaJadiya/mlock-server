@@ -12,9 +12,30 @@ export class NotificationJob {
     // Check every 10 seconds (better for production)
     cron.schedule('*/10 * * * * *', () => {
       this.checkBookings();
+      this.checkExpiringLogs();
       console.log('Cron job check initiated at', new Date().toISOString());
     });
   }
+
+  private static async checkExpiringLogs(){
+    try{
+      const now = new Date();
+      const windowEnd = new Date(now.getTime() + 11000); // 11 seconds ahead
+      const expiringCount = await Booking.countDocuments({
+        checkoutTime: { $gte:now, $lte : windowEnd },
+        notificationSent: false,
+        isExpired: false
+      });
+
+      if(expiringCount > 0){
+        console.log(`Expiring bookings in next 10 seconds: ${expiringCount}`);
+      }
+    }catch(error){
+      console.error('Error checking expiring logs:', error);
+      
+    }
+    }
+  
 
   private static async checkBookings() {
     try {
